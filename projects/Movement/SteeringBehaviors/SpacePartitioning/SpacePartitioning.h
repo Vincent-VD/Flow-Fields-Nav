@@ -14,6 +14,7 @@
 #include <vector>
 #include <iterator>
 #include "framework\EliteMath\EVector2.h"
+#include "framework\EliteAI\EliteGraphs\ENavGraph.h"
 #include "framework\EliteGeometry\EGeometry2DTypes.h"
 #include "framework\EliteAI\EliteNavigation\Algorithms\EPathSmoothing.h"
 

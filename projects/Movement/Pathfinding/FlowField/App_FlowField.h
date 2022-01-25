@@ -2,14 +2,13 @@
 #include "framework/EliteInterfaces/EIApp.h"
 #include "projects/Movement/SteeringBehaviors/SteeringHelpers.h"
 #include "projects/Movement/SteeringBehaviors/Flocking/TheFlock.h"
+#include "projects/Movement/SteeringBehaviors/SpacePartitioning/SpacePartitioning.h"
 
 #include "framework\EliteAI\EliteGraphs\EliteGraphUtilities\EGraphRenderer.h"
 #include "framework\EliteAI\EliteNavigation\Algorithms\EPathSmoothing.h"
 
 class NavigationColliderElement;
 class SteeringAgent;
-class Seek;
-class Arrive;
 
 namespace Elite
 {
@@ -30,6 +29,7 @@ public:
 private:
 	Flock* m_pFlock = nullptr;
 	TargetData m_Target = {};
+	float m_TrimWorldSize = 100.f;
 	float m_AgentRadius = 1.0f;
 	float m_AgentSpeed = 16.0f;
 
