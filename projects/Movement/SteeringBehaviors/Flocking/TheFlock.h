@@ -32,6 +32,10 @@ public:
 	//const vector<SteeringAgent*>& GetNeighbors() const { return m_Neighbors; }
 	const vector<SteeringAgent*>& GetNeighbors() const { return m_CellSpace.GetNeighbors(); }
 
+	void ChangeCellDirectionVect(Elite::Vector2 mousePos, Elite::NavGraph* pNavGraph, std::vector<Elite::Vector2>& debugNodePositions, std::vector<Elite::Portal>& debugPortals);
+
+	void SetMaxLinearSpeed(float agentSpeed);
+
 	Elite::Vector2 GetAverageNeighborPos() const;
 	Elite::Vector2 GetAverageNeighborVelocity() const;
 

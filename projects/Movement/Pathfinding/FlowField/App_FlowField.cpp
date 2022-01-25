@@ -49,5 +49,96 @@ void App_FlowField::Start()
 
 	//----------- AGENT ------------
 	m_pFlock = new Flock{ 100, m_TrimWorldSize, nullptr, true };
+}
 
+void App_FlowField::Update(float elapsedSec)
+{
+	if (INPUTMANAGER->IsMouseButtonUp(InputMouseButton::eMiddle))
+	{
+		auto mouseData = INPUTMANAGER->GetMouseData(Elite::InputType::eMouseButton, Elite::InputMouseButton::eMiddle);
+		m_Target = DEBUGRENDERER2D->GetActiveCamera()->ConvertScreenToWorld(Elite::Vector2((float)mouseData.X, (float)mouseData.Y));
+		//m_vPath = NavMeshPathfinding::FindPath(m_pAgent->GetPosition(), mouseTarget, m_pNavGraph, m_DebugNodePositions, m_Portals);
+	}
+	m_pFlock->ChangeCellDirectionVect(m_Target.Position, m_pNavGraph, m_DebugNodePositions, m_Portals);
+
+	UpdateImGui();
+
+	m_pFlock->Update(elapsedSec);
+}
+
+void App_FlowField::Render(float elapsedSec) const
+{
+	if (sShowGraph)
+	{
+		m_GraphRenderer.RenderGraph(m_pNavGraph, true, true);
+	}
+
+	if (sShowPolygon)
+	{
+		DEBUGRENDERER2D->DrawPolygon(m_pNavGraph->GetNavMeshPolygon(),
+			Color(0.1f, 0.1f, 0.1f));
+		DEBUGRENDERER2D->DrawSolidPolygon(m_pNavGraph->GetNavMeshPolygon(),
+			Color(0.0f, 0.5f, 0.1f, 0.05f), 0.4f);
+	}
+
+	m_pFlock->Render(elapsedSec);
+}
+
+void App_FlowField::UpdateImGui()
+{
+	//------- UI --------
+#ifdef PLATFORM_WINDOWS
+#pragma region UI
+	{
+		//Setup
+		int menuWidth = 150;
+		int const width = DEBUGRENDERER2D->GetActiveCamera()->GetWidth();
+		int const height = DEBUGRENDERER2D->GetActiveCamera()->GetHeight();
+		bool windowActive = true;
+		ImGui::SetNextWindowPos(ImVec2((float)width - menuWidth - 10, 10));
+		ImGui::SetNextWindowSize(ImVec2((float)menuWidth, (float)height - 90));
+		ImGui::Begin("Gameplay Programming", &windowActive, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+		ImGui::PushAllowKeyboardFocus(false);
+		ImGui::SetWindowFocus();
+		ImGui::PushItemWidth(70);
+		//Elements
+		ImGui::Text("CONTROLS");
+		ImGui::Indent();
+		ImGui::Unindent();
+
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		ImGui::Text("STATS");
+		ImGui::Indent();
+		ImGui::Text("%.3f ms/frame", 1000.0f / ImGui::GetIO().Framerate);
+		ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
+		ImGui::Unindent();
+
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		ImGui::Checkbox("Show Polygon", &sShowPolygon);
+		ImGui::Checkbox("Show Graph", &sShowGraph);
+		ImGui::Checkbox("Show Portals", &sDrawPortals);
+		ImGui::Checkbox("Show Path Nodes", &sDrawNonOptimisedPath);
+		ImGui::Checkbox("Show Final Path", &sDrawFinalPath);
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		if (ImGui::SliderFloat("AgentSpeed", &m_AgentSpeed, 0.0f, 22.0f))
+		{
+			m_pFlock->SetMaxLinearSpeed(m_AgentSpeed);
+		}
+
+		//End
+		ImGui::PopAllowKeyboardFocus();
+		ImGui::End();
+	}
+#pragma endregion
+#endif
 }

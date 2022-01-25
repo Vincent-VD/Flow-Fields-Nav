@@ -76,7 +76,7 @@ void Flock::Start() {
 		const float randVel{ maxVel / 4 + (((float)rand()) / (float)RAND_MAX) * (maxVel - (maxVel / 4)) };
 		m_Agents[iter]->SetPosition(Elite::Vector2(randX, randY));
 		m_Agents[iter]->SetMaxLinearSpeed(randVel * 8);
-		m_Agents[iter]->SetSteeringBehavior(m_pPrioritySteering);
+		m_Agents[iter]->SetSteeringBehavior(m_pBlendedSteering);
 		m_Agents[iter]->SetBodyColor(Elite::Color(0, 1, 0));
 		m_Agents[iter]->SetAutoOrient(true);
 		m_CellSpace.AddAgent(m_Agents[iter]);
@@ -121,7 +121,8 @@ void Flock::Update(float deltaT)
 		// trim it to the world
 
 	m_pAgentToEvade->Update(deltaT);
-	if (m_TrimWorld) {
+	if (m_TrimWorld)
+	{
 		m_pAgentToEvade->TrimToWorld(Elite::Vector2(0.f, 0.f), Elite::Vector2(m_WorldSize, m_WorldSize));
 	}
 	auto target = TargetData{};
@@ -131,23 +132,42 @@ void Flock::Update(float deltaT)
 	target.AngularVelocity = m_pAgentToEvade->GetAngularVelocity();
 	SetFleeTarget(target);
 
-	for (SteeringAgent* currAgent : m_Agents) {
-		if (useCellSpace) {
+	for (SteeringAgent* currAgent : m_Agents)
+	{
+		if (useCellSpace)
+		{
 			m_CellSpace.RegisterNeighbors(currAgent, m_NeighborhoodRadius);
 		}
-		else {
+		else
+		{
 			RegisterNeighbors(currAgent);
 
 		}
 		const Elite::Vector2 oldPos{ currAgent->GetPosition() };
 		currAgent->Update(deltaT);
-		if (m_TrimWorld) {
+		if (m_TrimWorld)
+		{
 			currAgent->TrimToWorld(Elite::Vector2(0.f, 0.f), Elite::Vector2(m_WorldSize, m_WorldSize));
 		}
 		m_CellSpace.UpdateAgentCell(currAgent, oldPos);
-		if (!useCellSpace) {
+		if (!useCellSpace)
+		{
 			m_NrOfNeighbors = 0;
 		}
+	}
+}
+
+
+void Flock::ChangeCellDirectionVect(Elite::Vector2 mousePos, Elite::NavGraph* pNavGraph, std::vector<Elite::Vector2>& debugNodePositions, std::vector<Elite::Portal>& debugPortals)
+{
+	m_CellSpace.ChangeCellDirectionVect(mousePos, pNavGraph, debugNodePositions, debugPortals);
+}
+
+void Flock::SetMaxLinearSpeed(float agentSpeed)
+{
+	for (SteeringAgent* currAgent : m_Agents)
+	{
+		currAgent->SetMaxLinearSpeed(agentSpeed);
 	}
 }
 
@@ -224,7 +244,8 @@ void Flock::UpdateAndRenderUI()
 
 void Flock::RegisterNeighbors(SteeringAgent* pAgent) {
 
-	for (SteeringAgent* currAgent : m_Agents) {
+	for (SteeringAgent* currAgent : m_Agents)
+	{
 		Elite::Vector2 distanceVect{ currAgent->GetPosition() - pAgent->GetPosition() };
 		float distanceSquared{ distanceVect.MagnitudeSquared() };
 		if (distanceSquared < m_NeighborhoodRadius * m_NeighborhoodRadius && m_NrOfNeighbors < m_Neighbors.size()) {
@@ -237,15 +258,19 @@ void Flock::RegisterNeighbors(SteeringAgent* pAgent) {
 Elite::Vector2 Flock::GetAverageNeighborPos() const {
 
 	Elite::Vector2 avgPos{};
-	if (useCellSpace) {
-		for (size_t iter = 0; iter < m_CellSpace.GetNrOfNeighbors(); iter++) {
+	if (useCellSpace)
+	{
+		for (size_t iter = 0; iter < m_CellSpace.GetNrOfNeighbors(); iter++)
+		{
 			Elite::Vector2 currPos{m_CellSpace.GetNeighbors()[iter]->GetPosition()};
 			avgPos += currPos;
 		}
 		avgPos /= m_CellSpace.GetNrOfNeighbors();
 	}
-	else {
-		for (size_t iter = 0; iter < m_NrOfNeighbors; iter++) {
+	else
+	{
+		for (size_t iter = 0; iter < m_NrOfNeighbors; iter++)
+		{
 			Elite::Vector2 currPos{ m_Neighbors[iter]->GetPosition() };
 			avgPos += currPos;
 		}
@@ -258,7 +283,8 @@ Elite::Vector2 Flock::GetAverageNeighborPos() const {
 Elite::Vector2 Flock::GetAverageNeighborVelocity() const 
 {
 	Elite::Vector2 avgVel;
-	if (useCellSpace) {
+	if (useCellSpace)
+	{
 		for (size_t iter = 0; iter < m_CellSpace.GetNrOfNeighbors(); iter++) {
 			Elite::Vector2 currPos{ m_CellSpace.GetNeighbors()[iter]->GetLinearVelocity() };
 			avgVel += currPos;
@@ -266,8 +292,10 @@ Elite::Vector2 Flock::GetAverageNeighborVelocity() const
 		avgVel /= m_CellSpace.GetNrOfNeighbors();
 
 	}
-	else {
-		for (size_t iter = 0; iter < m_NrOfNeighbors; iter++) {
+	else
+	{
+		for (size_t iter = 0; iter < m_NrOfNeighbors; iter++)
+		{
 			Elite::Vector2 currPos{ m_Neighbors[iter]->GetLinearVelocity() };
 			avgVel += currPos;
 		}
@@ -281,7 +309,8 @@ Elite::Vector2 Flock::GetAverageNeighborVelocity() const
 void Flock::SetSeekTarget(TargetData target)
 {
 	// TODO: set target for Seek behavior
-	for (SteeringAgent* currAgent : m_Agents) {
+	for (SteeringAgent* currAgent : m_Agents)
+	{
 		m_pSeekBehavior->SetTarget(target);
 	}
 }
@@ -289,7 +318,8 @@ void Flock::SetSeekTarget(TargetData target)
 void Flock::SetFleeTarget(TargetData target)
 {
 	// TODO: set target for Seek behavior
-	for (SteeringAgent* currAgent : m_Agents) {
+	for (SteeringAgent* currAgent : m_Agents)
+	{
 		m_pFleeBehavior->SetTarget(target);
 	}
 }
