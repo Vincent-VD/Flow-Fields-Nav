@@ -15,7 +15,7 @@ Cell::Cell(float left, float bottom, float width, float height)
 	boundingBox.height = height;
 
 	directionVect = Elite::ZeroVector2;
-	target = Elite::ZeroVector2;
+	target = Elite::Vector2{ left + (width / 2.f), bottom + (height / 2.f) };
 	center = Elite::Vector2{ left + (width / 2.f), bottom + (height / 2.f) };
 }
 
