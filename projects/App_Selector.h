@@ -8,4 +8,5 @@
 //#define ActiveApp_TheFlock
 //#define ActiveApp_GraphTheory
 //#define ActiveApp_AStar
-#define ActiveApp_NavMesh
+//#define ActiveApp_NavMesh
+#define ActiveApp_FlowFields

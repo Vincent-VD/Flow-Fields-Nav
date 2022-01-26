@@ -43,11 +43,13 @@ struct Cell
 class CellSpace
 {
 public:
-	CellSpace(float width, float height, int rows, int cols, int maxEntities);
+	CellSpace(Elite::Vector2 bottomLeft, float width, float height, int rows, int cols, int maxEntities);
 	~CellSpace();
 
 	void AddAgent(SteeringAgent* agent);
 	void UpdateAgentCell(SteeringAgent* agent, Elite::Vector2 oldPos);
+
+	Cell GetAgentCell(SteeringAgent* agent) const;
 
 	void ChangeCellDirectionVect(Elite::Vector2 mousePos, Elite::NavGraph* pNavGraph, std::vector<Elite::Vector2>& debugNodePositions, std::vector<Elite::Portal>& debugPortals);
 
@@ -60,6 +62,7 @@ public:
 private:
 	// Cells and properties
 	std::vector<Cell> m_Cells;
+	Elite::Vector2 m_BottomLeft;
 
 	float m_SpaceWidth;
 	float m_SpaceHeight;

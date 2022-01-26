@@ -31,7 +31,7 @@ void App_FlowField::Start()
 	//Initialization of your application. 
 	//----------- CAMERA ------------
 	DEBUGRENDERER2D->GetActiveCamera()->SetZoom(36.782f);
-	DEBUGRENDERER2D->GetActiveCamera()->SetCenter(Elite::Vector2(m_TrimWorldSize / 1.5f, m_TrimWorldSize / 2));
+	DEBUGRENDERER2D->GetActiveCamera()->SetCenter(Elite::Vector2(m_TrimWorldSize / 2.f, m_TrimWorldSize / 2.f));
 
 	//DEBUGRENDERER2D->GetActiveCamera()->SetCenter(Elite::Vector2(12.9361f, 0.2661f));
 
@@ -43,7 +43,7 @@ void App_FlowField::Start()
 
 	//----------- NAVMESH  ------------
 	std::list<Elite::Vector2> baseBox
-	{ { -60, 30 },{ -60, -30 },{ 60, -30 },{ 60, 30 } };
+	{ { -50, 50 },{ -50, -50 },{ 50, -50 },{ 50, 50 } };
 
 	m_pNavGraph = new Elite::NavGraph(Elite::Polygon(baseBox), m_AgentRadius);
 
@@ -59,7 +59,7 @@ void App_FlowField::Update(float elapsedSec)
 		m_Target = DEBUGRENDERER2D->GetActiveCamera()->ConvertScreenToWorld(Elite::Vector2((float)mouseData.X, (float)mouseData.Y));
 		//m_vPath = NavMeshPathfinding::FindPath(m_pAgent->GetPosition(), mouseTarget, m_pNavGraph, m_DebugNodePositions, m_Portals);
 	}
-	m_pFlock->ChangeCellDirectionVect(m_Target.Position, m_pNavGraph, m_DebugNodePositions, m_Portals);
+	//m_pFlock->ChangeCellDirectionVect(m_Target.Position, m_pNavGraph, m_DebugNodePositions, m_Portals);
 
 	UpdateImGui();
 

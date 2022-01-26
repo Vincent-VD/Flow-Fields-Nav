@@ -47,41 +47,41 @@ void Flock::Start() {
 	weightedSteeringBehaviors.push_back({ m_pWanderBehavior, 0.5f });
 	m_pBlendedSteering = new BlendedSteering(weightedSteeringBehaviors);
 
-	m_pAgentToEvade = new SteeringAgent();
+	/*m_pAgentToEvade = new SteeringAgent();
 	m_pAgentToEvade->SetSteeringBehavior(m_pWanderBehavior);
 	const float randX{ 1.f + (((float)rand()) / (float)RAND_MAX) * (m_WorldSize - (1.f + 1)) };
 	const float randY{ 1.f + (((float)rand()) / (float)RAND_MAX) * (m_WorldSize - (1.f + 1)) };
 	m_pAgentToEvade->SetPosition(Elite::Vector2(50, 50));
 	m_pAgentToEvade->SetMaxLinearSpeed(100);
 	m_pAgentToEvade->SetBodyColor(Elite::Color(1, 0, 0));
-	m_pAgentToEvade->SetAutoOrient(true);
+	m_pAgentToEvade->SetAutoOrient(true);*/
 
 	//Priority Steering
-	m_pFleeBehavior = new Evade();
-	auto target = TargetData{};
-	target.Position = m_pAgentToEvade->GetPosition();
-	target.Orientation = m_pAgentToEvade->GetOrientation();
-	target.LinearVelocity = -m_pAgentToEvade->GetLinearVelocity();
-	target.AngularVelocity = m_pAgentToEvade->GetAngularVelocity();
-	//m_pFleeBehavior->SetTarget(target);
-	//m_pSeparationBehavior->SetTarget(target);
-	m_pPrioritySteering = new PrioritySteering({ m_pFleeBehavior, m_pBlendedSteering }); //Evade from agentToAvoid and Blended from Cohesion and Wander
-	//m_pPrioritySteering->SetTarget(target);
+	//m_pFleeBehavior = new Evade();
+	//auto target = TargetData{};
+	//target.Position = m_pAgentToEvade->GetPosition();
+	//target.Orientation = m_pAgentToEvade->GetOrientation();
+	//target.LinearVelocity = -m_pAgentToEvade->GetLinearVelocity();
+	//target.AngularVelocity = m_pAgentToEvade->GetAngularVelocity();
+	////m_pFleeBehavior->SetTarget(target);
+	////m_pSeparationBehavior->SetTarget(target);
+	//m_pPrioritySteering = new PrioritySteering({ m_pFleeBehavior, m_pBlendedSteering }); //Evade from agentToAvoid and Blended from Cohesion and Wander
+	////m_pPrioritySteering->SetTarget(target);
 
 	for (int iter = 0; iter < m_FlockSize; iter++) {
-		const float randX{ 1.f + (((float)rand()) / (float)RAND_MAX) * (m_WorldSize - (1.f + 1)) };
-		const float randY{ 1.f + (((float)rand()) / (float)RAND_MAX) * (m_WorldSize - (1.f + 1)) };
+		const float randX{ (1.f + (((float)rand()) / (float)RAND_MAX) * (m_WorldSize - (1.f + 1))) - (m_WorldSize / 2.f) };
+		const float randY{ (1.f + (((float)rand()) / (float)RAND_MAX) * (m_WorldSize - (1.f + 1))) - (m_WorldSize / 2.f) };
 		m_Agents[iter] = new SteeringAgent();
 		const float maxVel{m_Agents[iter]->GetMaxLinearSpeed()};
-		const float randVel{ maxVel / 4 + (((float)rand()) / (float)RAND_MAX) * (maxVel - (maxVel / 4)) };
+		const float randVel{ maxVel / 10.f + (((float)rand()) / (float)RAND_MAX) * (maxVel - (maxVel / 10.f)) };
 		m_Agents[iter]->SetPosition(Elite::Vector2(randX, randY));
 		m_Agents[iter]->SetMaxLinearSpeed(randVel * 8);
-		m_Agents[iter]->SetSteeringBehavior(m_pBlendedSteering);
+		m_Agents[iter]->SetSteeringBehavior(m_pSeekBehavior);
 		m_Agents[iter]->SetBodyColor(Elite::Color(0, 1, 0));
 		m_Agents[iter]->SetAutoOrient(true);
 		m_CellSpace.AddAgent(m_Agents[iter]);
 	}
-	SetFleeTarget(target);
+	//SetFleeTarget(target);
 
 }
 
@@ -120,17 +120,17 @@ void Flock::Update(float deltaT)
 		// update it				(-> the behaviors can use the neighbors stored in the pool, next iteration they will be the next agent's neighbors)
 		// trim it to the world
 
-	m_pAgentToEvade->Update(deltaT);
+	/*m_pAgentToEvade->Update(deltaT);
 	if (m_TrimWorld)
 	{
 		m_pAgentToEvade->TrimToWorld(Elite::Vector2(0.f, 0.f), Elite::Vector2(m_WorldSize, m_WorldSize));
-	}
-	auto target = TargetData{};
-	target.Position = m_pAgentToEvade->GetPosition();
-	target.Orientation = m_pAgentToEvade->GetOrientation();
-	target.LinearVelocity = -m_pAgentToEvade->GetLinearVelocity();
-	target.AngularVelocity = m_pAgentToEvade->GetAngularVelocity();
-	SetFleeTarget(target);
+	}*/
+	//auto target = TargetData{};
+	//target.Position = m_pAgentToEvade->GetPosition();
+	//target.Orientation = m_pAgentToEvade->GetOrientation();
+	//target.LinearVelocity = -m_pAgentToEvade->GetLinearVelocity();
+	//target.AngularVelocity = m_pAgentToEvade->GetAngularVelocity();
+	//SetFleeTarget(target);
 
 	for (SteeringAgent* currAgent : m_Agents)
 	{
@@ -143,11 +143,13 @@ void Flock::Update(float deltaT)
 			RegisterNeighbors(currAgent);
 
 		}
+		const Cell cell{ m_CellSpace.GetAgentCell(currAgent) };
 		const Elite::Vector2 oldPos{ currAgent->GetPosition() };
+		currAgent->GetSteeringBehavior()->SetTarget(cell.target);
 		currAgent->Update(deltaT);
 		if (m_TrimWorld)
 		{
-			currAgent->TrimToWorld(Elite::Vector2(0.f, 0.f), Elite::Vector2(m_WorldSize, m_WorldSize));
+			currAgent->TrimToWorld(Elite::Vector2(-m_WorldSize / 2.f, -m_WorldSize / 2.f), Elite::Vector2(m_WorldSize / 2.f, m_WorldSize / 2.f));
 		}
 		m_CellSpace.UpdateAgentCell(currAgent, oldPos);
 		if (!useCellSpace)

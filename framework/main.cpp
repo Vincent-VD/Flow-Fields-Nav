@@ -23,6 +23,8 @@
 	#include "projects/Movement/Pathfinding/PathfindingAStar/App_PathfindingAStar/App_PathfindingAStar.h"
 #elif defined(ActiveApp_NavMesh)
 	#include "projects/Movement/Pathfinding/NavMeshGraph/App_NavMeshGraph.h"
+#elif defined(ActiveApp_FlowFields)
+	#include "projects/Movement/Pathfinding/FlowField/App_FlowField.h"
 #endif
 
 //Hotfix for genetic algorithms project
@@ -90,6 +92,8 @@ int main(int argc, char* argv[])
 		myApp = new App_PathfindingAStar();
 #elif defined(ActiveApp_NavMesh)
 		myApp = new App_NavMeshGraph();
+#elif defined(ActiveApp_FlowFields)
+		myApp = new App_FlowField();
 #endif
 		ELITE_ASSERT(myApp, "Application has not been created.");
 		//Boot application

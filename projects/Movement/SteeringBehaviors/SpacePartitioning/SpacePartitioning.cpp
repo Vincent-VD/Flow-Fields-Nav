@@ -38,13 +38,14 @@ std::vector<Elite::Vector2> Cell::GetRectPoints() const
 
 // --- Partitioned Space ---
 // -------------------------
-CellSpace::CellSpace(float width, float height, int rows, int cols, int maxEntities)
+CellSpace::CellSpace(Elite::Vector2 bottomLeft, float width, float height, int rows, int cols, int maxEntities)
 	: m_SpaceWidth(width)
 	, m_SpaceHeight(height)
 	, m_NrOfRows(rows)
 	, m_NrOfCols(cols)
 	, m_Neighbors(maxEntities)
 	, m_NrOfNeighbors(0)
+	, m_BottomLeft{ bottomLeft }
 {
 	m_CellWidth = width / rows;
 	m_CellHeight = height / cols;
@@ -53,7 +54,7 @@ CellSpace::CellSpace(float width, float height, int rows, int cols, int maxEntit
 	{
 		for (int row = 0; row < rows; row++)
 		{
-			Cell newCell{ Cell(col * m_CellWidth, row * m_CellHeight, m_CellWidth, m_CellHeight) };
+			Cell newCell{ Cell(bottomLeft.x + col * m_CellWidth, bottomLeft.y + row * m_CellHeight, m_CellWidth, m_CellHeight) };
 			m_Cells[row * rows + col] = newCell;
 		}
 	}
@@ -66,6 +67,13 @@ CellSpace::~CellSpace()
 		delete(m_Neighbors[iter]);
 	}
 	m_Neighbors.clear();
+}
+
+Cell CellSpace::GetAgentCell(SteeringAgent* agent) const
+{
+	const Elite::Vector2 agentPos{ agent->GetPosition() };
+	int cellIdx{ PositionToIndex(agentPos) };
+	return m_Cells[cellIdx];
 }
 
 void CellSpace::AddAgent(SteeringAgent* agent)
@@ -146,8 +154,18 @@ void CellSpace::RenderCells() const
 
 int CellSpace::PositionToIndex(const Elite::Vector2 pos) const
 {
-	int xCoord{ static_cast<int>(pos.x / m_CellWidth) };
-	int yCoord{ static_cast<int>(pos.y / m_CellHeight) };
+	float posX{ m_BottomLeft.x + pos.x };
+	float posY{ m_BottomLeft.y + pos.y };
+	int xCoord{ static_cast<int>(posX / m_CellWidth) };
+	int yCoord{ static_cast<int>(posY / m_CellHeight) };
+	if (xCoord == 10)
+	{
+		--xCoord;
+	}
+	if (yCoord == 10)
+	{
+		--yCoord;
+	}
 	int res{ xCoord + (yCoord * m_NrOfCols) };
 	return res;
 }
