@@ -91,8 +91,8 @@ public:
 
 private:
 	float m_MaxSpeed{ 50.f };
-	float m_ArrivalRadius{ 1.f };
-	float m_SlowRadius{ 15.f };
+	float m_ArrivalRadius{ 5.f };
+	float m_SlowRadius{ 20.f };
 };
 
 

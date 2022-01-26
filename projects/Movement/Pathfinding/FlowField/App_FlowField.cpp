@@ -10,9 +10,7 @@
 //Statics
 bool App_FlowField::sShowPolygon = true;
 bool App_FlowField::sShowGraph = false;
-bool App_FlowField::sDrawPortals = false;
-bool App_FlowField::sDrawFinalPath = true;
-bool App_FlowField::sDrawNonOptimisedPath = false;
+bool App_FlowField::sShowGrid = true;
 
 //Destructor
 App_FlowField::~App_FlowField()
@@ -48,7 +46,7 @@ void App_FlowField::Start()
 	m_pNavGraph = new Elite::NavGraph(Elite::Polygon(baseBox), m_AgentRadius);
 
 	//----------- AGENT ------------
-	m_pFlock = new Flock{ 100, m_TrimWorldSize, nullptr, true };
+	m_pFlock = new Flock{ 100, m_TrimWorldSize, true };
 }
 
 void App_FlowField::Update(float elapsedSec)
@@ -57,9 +55,8 @@ void App_FlowField::Update(float elapsedSec)
 	{
 		auto mouseData = INPUTMANAGER->GetMouseData(Elite::InputType::eMouseButton, Elite::InputMouseButton::eMiddle);
 		m_Target = DEBUGRENDERER2D->GetActiveCamera()->ConvertScreenToWorld(Elite::Vector2((float)mouseData.X, (float)mouseData.Y));
-		//m_vPath = NavMeshPathfinding::FindPath(m_pAgent->GetPosition(), mouseTarget, m_pNavGraph, m_DebugNodePositions, m_Portals);
+		m_pFlock->ChangeCellDirectionVect(m_Target.Position, m_pNavGraph, m_DebugNodePositions, m_Portals);
 	}
-	//m_pFlock->ChangeCellDirectionVect(m_Target.Position, m_pNavGraph, m_DebugNodePositions, m_Portals);
 
 	UpdateImGui();
 
@@ -124,9 +121,7 @@ void App_FlowField::UpdateImGui()
 
 		ImGui::Checkbox("Show Polygon", &sShowPolygon);
 		ImGui::Checkbox("Show Graph", &sShowGraph);
-		ImGui::Checkbox("Show Portals", &sDrawPortals);
-		ImGui::Checkbox("Show Path Nodes", &sDrawNonOptimisedPath);
-		ImGui::Checkbox("Show Final Path", &sDrawFinalPath);
+		ImGui::Checkbox("Show Grid", &sShowGrid);
 		ImGui::Spacing();
 		ImGui::Spacing();
 

@@ -9,6 +9,8 @@
 
 using namespace Elite;
 
+float F_PI{ static_cast<float>(E_PI) };
+
 //SEEK
 //****
 SteeringOutput Seek::CalculateSteering(float deltaT, SteeringAgent* pAgent)
@@ -125,8 +127,6 @@ SteeringOutput Face::CalculateSteering(float deltaT, SteeringAgent* pAgent) {
 	const float distAngle{ ToDegrees(acos(Dot(toTarget, agentDirection))) };
 	pAgent->SetRotation(distAngle + 90);
 
-
-
 	return steering;
 }
 
@@ -144,11 +144,11 @@ SteeringOutput Wander::CalculateSteering(float deltaT, SteeringAgent* pAgent) {
 	const float randAngleDelt{ (-m_MaxAngleChange) + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (2 * m_MaxAngleChange))) };
 	m_WanderAngle = ToDegrees(m_WanderAngle) + randAngleDelt;
 	m_WanderAngle = ToRadians(m_WanderAngle);
-	if (m_WanderAngle > 2 * E_PI) {
-		m_WanderAngle -= 2 * E_PI;
+	if (m_WanderAngle > 2 * F_PI) {
+		m_WanderAngle -= 2 * F_PI;
 	}
 	else if(m_WanderAngle < 0) {
-		m_WanderAngle = 2 * E_PI - m_WanderAngle;
+		m_WanderAngle = 2 * F_PI - m_WanderAngle;
 	}
 	Vector2 originAngle{ m_Radius * cos(m_WanderAngle), m_Radius * sin(m_WanderAngle) };
 	Vector2 circleAngle{ originAngle + circleCenter };
@@ -161,7 +161,6 @@ SteeringOutput Wander::CalculateSteering(float deltaT, SteeringAgent* pAgent) {
 	if (pAgent->CanRenderBehavior()) {
 		DEBUGRENDERER2D->DrawDirection(pAgent->GetPosition(), steering.LinearVelocity, 5.f, Color{ 0,1,0,1 });
 		DEBUGRENDERER2D->DrawCircle(circleCenter, m_Radius, Color{ 0,1,0,1 }, 0);
-		//DEBUGRENDERER2D->DrawPoint(target, 10.f, Color{ 0,0,1,1 });
 	}
 
 	return steering;

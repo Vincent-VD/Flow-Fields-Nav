@@ -17,7 +17,6 @@ public:
 	Flock(
 		int flockSize = 100, 
 		float worldSize = 100.f, 
-		SteeringAgent* pAgentToEvade = nullptr, 
 		bool trimWorld = false);
 
 	~Flock();
@@ -36,10 +35,11 @@ public:
 
 	void SetMaxLinearSpeed(float agentSpeed);
 
+
 	Elite::Vector2 GetAverageNeighborPos() const;
 	Elite::Vector2 GetAverageNeighborVelocity() const;
 
-	void SetSeekTarget(TargetData target);
+	void SetArriveTarget(TargetData target);
 	void SetWorldTrimSize(float size) { m_WorldSize = size; }
 
 private:
@@ -54,29 +54,16 @@ private:
 
 	float m_NeighborhoodRadius = 50.f;
 	int m_NrOfNeighbors = 0;
-	//size_t m_MaxNeighbors = 16;
 
-	void SetFleeTarget(TargetData target);
-
-	SteeringAgent* m_pAgentToEvade = nullptr;
 	TargetData m_Target{};
 	
 	//Steering Behaviors
-	Separation* m_pSeparationBehavior = nullptr;
-	Cohesion* m_pCohesionBehavior = nullptr;
-	VelocityMatch* m_pVelMatchBehavior = nullptr;
-	Seek* m_pSeekBehavior = nullptr;
-	Wander* m_pWanderBehavior = nullptr;
-	Evade* m_pFleeBehavior = nullptr;
-
-	BlendedSteering* m_pBlendedSteering = nullptr;
-	PrioritySteering* m_pPrioritySteering = nullptr;
+	Arrive* m_pArriveBehavior = nullptr;
 
 	void Start();
-	float* GetWeight(ISteeringBehavior* pBehaviour);
 	void DebugRenderAgent();
 
 private:
-	Flock(const Flock& other);
-	Flock& operator=(const Flock& other);
+	Flock(const Flock& other) = delete;
+	Flock& operator=(const Flock& other) = delete;
 };

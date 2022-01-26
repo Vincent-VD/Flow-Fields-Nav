@@ -60,6 +60,8 @@ public:
 	void RenderCells()const;
 
 private:
+	bool m_DisplayGrid{ false };
+
 	// Cells and properties
 	std::vector<Cell> m_Cells;
 	Elite::Vector2 m_BottomLeft;

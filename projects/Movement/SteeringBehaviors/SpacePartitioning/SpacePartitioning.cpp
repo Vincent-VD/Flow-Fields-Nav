@@ -3,6 +3,7 @@
 #include "string.h"
 #include "SpacePartitioning.h"
 #include "projects\Movement\SteeringBehaviors\SteeringAgent.h"
+#include "projects/Movement/Pathfinding/FlowField/App_FlowField.h"
 #include "framework\EliteAI\EliteNavigation\Algorithms\ENavGraphPathfinding.h"
 
 // --- Cell ---
@@ -62,7 +63,7 @@ CellSpace::CellSpace(Elite::Vector2 bottomLeft, float width, float height, int r
 
 CellSpace::~CellSpace()
 {
-	for (size_t iter = 0; iter < m_NrOfNeighbors; iter++)
+	for (size_t iter = 0; iter < (UINT)m_NrOfNeighbors; iter++)
 	{
 		delete(m_Neighbors[iter]);
 	}
@@ -105,13 +106,11 @@ void CellSpace::ChangeCellDirectionVect(Elite::Vector2 mousePos, Elite::NavGraph
 	for (Cell& cell : m_Cells)
 	{
 		const std::vector<Elite::Vector2> pathToMouse{ Elite::NavMeshPathfinding::FindPath(cell.center, mousePos, pNavGraph, debugNodePositions, debugPortals) };
-		cell.target = pathToMouse[0];
-		cell.directionVect = Elite::GetNormalized(Elite::Vector2{ cell.target - cell.center });
-		//if (Elite::DistanceSquared(mousePos, cell.center) < Elite::DistanceSquared(cell.target, cell.center))
-		//{
-		//	cell.target = mousePos;
-		//	cell.directionVect = Elite::GetNormalized(Elite::Vector2{ mousePos - cell.center });
-		//}
+		if (!pathToMouse.empty())
+		{
+			cell.target = pathToMouse[0];
+			cell.directionVect = Elite::GetNormalized(Elite::Vector2{ cell.target - cell.center });
+		}
 	}
 }
 
@@ -127,7 +126,7 @@ void CellSpace::RegisterNeighbors(SteeringAgent* agent, float queryRadius)
 			for (SteeringAgent* currAgent : currCell.agents)
 			{
 				if (Elite::DistanceSquared(agent->GetPosition(), currAgent->GetPosition()) <= queryRadius * queryRadius &&
-					m_NrOfNeighbors < m_Neighbors.size())
+					(UINT)m_NrOfNeighbors < m_Neighbors.size())
 				{
 					m_Neighbors[m_NrOfNeighbors] = currAgent;
 					++m_NrOfNeighbors;
@@ -141,21 +140,24 @@ void CellSpace::RenderCells() const
 {
 	for (Cell cell : m_Cells)
 	{
-		Elite::Polygon points{ cell.GetRectPoints() };
-		const std::string string{ to_string(cell.agents.size()) };
-		Elite::Vector2 pos{ cell.boundingBox.bottomLeft };
-		const std::string string2{ to_string(PositionToIndex(pos)) };
-		pos.y += 5.f;
-		DEBUGRENDERER2D->DrawPolygon(&points, Elite::Color{ 1,0,0,1 });
-		DEBUGRENDERER2D->DrawString(pos, string2.c_str());
+		if (m_DisplayGrid)
+		{
+			Elite::Polygon points{ cell.GetRectPoints() };
+			const std::string string{ to_string(cell.agents.size()) };
+			Elite::Vector2 pos{ cell.boundingBox.bottomLeft };
+			const std::string string2{ to_string(PositionToIndex(pos)) };
+			pos.y += 5.f;
+			DEBUGRENDERER2D->DrawPolygon(&points, Elite::Color{ 1,0,0,1 });
+
+		}
 		DEBUGRENDERER2D->DrawDirection(cell.center, cell.directionVect, 3.f, Elite::Color{ 1, 1, 0, 1 });
 	}
 }
 
 int CellSpace::PositionToIndex(const Elite::Vector2 pos) const
 {
-	float posX{ m_BottomLeft.x + pos.x };
-	float posY{ m_BottomLeft.y + pos.y };
+	float posX{ pos.x + -m_BottomLeft.x };
+	float posY{ pos.y + -m_BottomLeft.y };
 	int xCoord{ static_cast<int>(posX / m_CellWidth) };
 	int yCoord{ static_cast<int>(posY / m_CellHeight) };
 	if (xCoord == 10)

@@ -48,11 +48,9 @@ private:
 	std::vector<Elite::Vector2> m_DebugNodePositions;
 	static bool sShowPolygon;
 	static bool sShowGraph;
-	static bool sDrawPortals;
-	static bool sDrawFinalPath;
-	static bool sDrawNonOptimisedPath;
-
+	static bool sShowGrid;
 	void UpdateImGui();
+
 private:
 	//C++ make the class non-copyable
 	App_FlowField(const App_FlowField&) = delete;
