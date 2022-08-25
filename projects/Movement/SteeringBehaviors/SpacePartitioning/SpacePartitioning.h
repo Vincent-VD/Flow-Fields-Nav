@@ -57,7 +57,9 @@ public:
 	const std::vector<SteeringAgent*>& GetNeighbors() const { return m_Neighbors; }
 	int GetNrOfNeighbors() const { return m_NrOfNeighbors; }
 
-	void RenderCells()const;
+	void CalculateField(Cell* startCell);
+
+	void RenderCells() const;
 
 private:
 	bool m_DisplayGrid{ false };

@@ -22,15 +22,17 @@ namespace Elite
 					&& pConnection == other.pConnection
 					&& costSoFar == other.costSoFar
 					&& estimatedTotalCost == other.estimatedTotalCost;
-			};
+			}
 
 			bool operator<(const NodeRecord& other) const
 			{
 				return estimatedTotalCost < other.estimatedTotalCost;
-			};
+			}
 		};
 
 		std::vector<T_NodeType*> FindPath(T_NodeType* pStartNode, T_NodeType* pDestinationNode);
+
+		std::vector<std::pair<T_NodeType*, float>> Dijsktra(T_NodeType* pStartNode);
 
 	private:
 		float GetHeuristicCost(T_NodeType* pStartNode, T_NodeType* pEndNode) const;
@@ -133,4 +135,63 @@ namespace Elite
 		Vector2 toDestination = m_pGraph->GetNodePos(pEndNode) - m_pGraph->GetNodePos(pStartNode);
 		return m_HeuristicFunction(abs(toDestination.x), abs(toDestination.y));
 	}
+
+	template <class T_NodeType, class T_ConnectionType>
+	std::vector<std::pair<T_NodeType*, float>> AStar<T_NodeType, T_ConnectionType>::Dijsktra(T_NodeType* pStartNode)
+	{
+		vector<T_NodeType*> path;
+		vector<NodeRecord> openList;
+		vector<NodeRecord> closedList;
+		NodeRecord currRec;
+
+		currRec = NodeRecord{ pStartNode, nullptr, 0.f, 0.f };
+		openList.push_back(currRec);
+
+		while (!openList.empty())
+		{
+			currRec = *std::min_element(openList.begin(), openList.end());
+
+			//NodeRecord nodeToAdd{};
+
+			for (auto con : m_pGraph->GetNodeConnections(currRec.pNode))
+			{
+				T_NodeType* pNextNode{ m_pGraph->GetNode(con->GetTo()) };
+				NodeRecord nextNodeRec{ pNextNode, con, currRec.costSoFar + con->GetCost(), 0.f };
+				nextNodeRec.estimatedTotalCost = nextNodeRec.costSoFar + GetHeuristicCost(pNextNode, pStartNode);
+
+				auto isSameNode = [nextNodeRec](const NodeRecord& current) {return current.pNode == nextNodeRec.pNode; };
+				auto foundNode{ std::find_if(closedList.begin(), closedList.end(), isSameNode) };
+				if(foundNode != closedList.end())
+				{
+					float distanceToEnd{ FLT_MAX };
+
+					if (nextNodeRec.estimatedTotalCost < distanceToEnd)
+					{
+						distanceToEnd = nextNodeRec.estimatedTotalCost;
+						//nodeToAdd = nextNodeRec;
+					}
+				}
+
+				
+			}
+
+
+
+
+
+				/*auto isSameNode = [nextNodeRec](const NodeRecord& current) {return current.pNode == nextNodeRec.pNode; };
+				auto foundNode{ std::find_if(closedList.begin(), closedList.end(), isSameNode) };
+
+				float distance{ Elite::Distance(m_pGraph->GetNodePos(pNextNode), m_pGraph->GetNodePos(pStartNode)) };
+
+				if(distance < distanceToEnd)
+				{
+					distanceToEnd = distance;
+					nodeToAdd = pNextNode;
+				}
+			}*/
+
+		}
+	}
+
 }

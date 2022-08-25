@@ -114,6 +114,30 @@ void CellSpace::ChangeCellDirectionVect(Elite::Vector2 mousePos, Elite::NavGraph
 	}
 }
 
+void CellSpace::CalculateField(Cell* startCell)
+{
+	std::queue<Cell*> openList{}; // nodes still to check
+	std::map<Cell*, Cell*> closedList{}; // already checked nodes
+
+	openList.push(startCell);
+
+	while (!openList.empty()) {
+
+		Cell* pCurrNode{ openList.front() }; // take node from open list
+		openList.pop(); // remove the node
+
+		for(int x = -1; x < 1; ++x)
+		{
+			for(int y = -1; y < 1; ++y)
+			{
+				
+			}
+		}
+	}
+}
+
+
+
 void CellSpace::RegisterNeighbors(SteeringAgent* agent, float queryRadius)
 {
 	const Elite::Vector2 agentPos{ agent->GetPosition() };
